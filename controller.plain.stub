@@ -1,0 +1,224 @@
+<?php
+
+namespace {{ namespace }};
+
+use {{ namespacedRequests }}
+use Inertia\Inertia;
+use ProtoneMedia\LaravelQueryBuilderInertiaJs\InertiaTable;
+use Spatie\QueryBuilder\AllowedFilter;
+use Spatie\QueryBuilder\QueryBuilder;
+
+use {{ namespacedModel }} as crudModel;
+use Illuminate\Support\Str;
+use DataTables;
+use Exception;
+use DB;
+
+class {{ class }} extends Controller
+{
+    public function __construct(
+    ) {
+        $this->name = Str::plural(Str::snake('{{ model }}')); //小駝峰 複數
+        $this->page = 'Backend/'.Str::pluralStudly('{{ model }}'); //大駝峰 複數
+
+        $this->rules = [
+            'name' => ['required']
+        ];
+        $this->messages = [
+
+        ];
+        $this->attributes = is_array(__("messages.{$this->name}")) ? __("messages.{$this->name}") : [];
+    }
+
+    /**
+     * 列表顯示
+     * @return Renderable
+     */
+    public function index(Request $request)
+    {
+        $this->authorize('read '.$this->name);
+
+        $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
+            $query->where(function ($query) use ($value) {
+                $query
+                    ->orWhere('name', 'LIKE', "%{$value}%")
+                    ->orWhere('updated_at', 'LIKE', "%{$value}%");
+            });
+        });
+
+        $data =  QueryBuilder::for(CrudModel::class)
+            ->defaultSort('-updated_at')
+            ->allowedSorts(['name', 'updated_at'])
+            ->allowedFilters(['name', 'updated_at', $globalSearch])
+            ->paginate($request->perPage ?? 15)
+            ->withQueryString();
+
+        return Inertia::render($this->page.'/Index')->with([
+            'data' => $data
+        ])->table(function (InertiaTable $table) {
+            $table
+                ->withGlobalSearch()
+                ->defaultSort('-updated_at')
+                ->column(key: 'name', label: __("messages.{$this->name}.name"), sortable: true, searchable: true, canBeHidden: false, hidden: false)
+                ->column(key: 'updated_at', label: __('messages.updated_at'), sortable: true, searchable: true, canBeHidden: true, hidden: false)
+                ->column(key: 'option', label:  __('messages.option'));
+
+            // $table->selectFilter(key: 'language_code', label: 'Language', options: [
+            //     'en' => 'English',
+            //     'nl' => 'Dutch',
+            // ]);
+        });
+    }
+
+    /**
+     * 新增頁面
+     * @return Renderable
+     */
+    public function create()
+    {
+        $this->authorize('create '.$this->name);
+
+        $model = CrudModel::prototype();
+
+        return Inertia::render($this->page.'/Show')->with([
+            'model' => $model
+        ]);
+    }
+
+    /**
+     * 新增資料
+     * @param Request $request
+     * @return Renderable
+     */
+    public function store(Request $request)
+    {
+        $this->authorize('create '.$this->name);
+
+        $validatedData = $request->validate($this->rules, $this->messages, $this->attributes);
+
+        try{
+            DB::beginTransaction();
+
+            $data = CrudModel::create($this->translation($validatedData));
+
+            DB::commit();
+
+            return redirect()->route("backend.{$this->name}.index")->with([
+                'success' => __('messages.create').__('messages.success')
+            ]);
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            return back()->with([
+                'error' =>  $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * 顯示該筆資料
+     * @param int $id
+     * @return Renderable
+     */
+    public function show($id)
+    {
+        $this->authorize('read '.$this->name);
+
+        $model = CrudModel::findOrFail($id);
+
+        return Inertia::render($this->page.'/Show')->with([
+            'model' => $model,
+            'show' => true
+        ]);
+    }
+
+    /**
+     * 修改該筆資料
+     * @param int $id
+     * @return Renderable
+     */
+    public function edit($id)
+    {
+        $this->authorize('edit '.$this->name);
+
+        $model = CrudModel::findOrFail($id);
+
+        return Inertia::render($this->page.'/Show')->with([
+            'model' => $model
+        ]);
+    }
+
+    /**
+     * 更新該筆資料
+     * @param Request $request
+     * @param int $id
+     * @return Renderable
+     */
+    public function update(Request $request, $id)
+    {
+        $this->authorize('edit '.$this->name);
+
+        $validatedData = $request->validate($this->rules, $this->messages, $this->attributes);
+
+        try{
+            DB::beginTransaction();
+
+            $data = CrudModel::findOrFail($id);
+            $data->update($this->translation($validatedData));
+
+            DB::commit();
+
+            return redirect()->route("backend.{$this->name}.index")->with([
+                'success' => __('messages.edit').__('messages.success')
+            ]);
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            return back()->with([
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * 刪除該筆資料
+     * @param int $id
+     * @return Renderable
+     */
+    public function destroy($id)
+    {
+        $this->authorize('delete '.$this->name);
+
+        try{
+            DB::beginTransaction();
+
+            $data = CrudModel::findOrFail($id);
+            $data->delete();
+
+            DB::commit();
+
+            return redirect()->route("backend.{$this->name}.index")->with([
+                'success' => __('messages.delete').__('messages.success')
+            ]);
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            return back()->with([
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+
+    /**
+     * 轉換資料
+     * @param Array $data
+     * @return Array
+     */
+    public function translation($data)
+    {
+        //轉換codeing
+
+        return $data;
+    }
+}

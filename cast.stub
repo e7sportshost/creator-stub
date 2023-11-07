@@ -7,7 +7,6 @@ use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 
 class {{ class }} implements CastsAttributes
 {
-
     /**
      * Cast the given value.
      *

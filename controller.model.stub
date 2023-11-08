@@ -35,12 +35,7 @@ class {{ class }} extends Controller
     {
         $this->authorize('read '.$this->name);
 
-        $data = CrudModel::where(function ($query) use ($request)
-            {
-                $query
-                    ->orWhere('id', 'LIKE', "%{$request->search}%")
-                    ->orWhere('updated_at', 'LIKE', "%{$request->search}%");
-            })
+        $data = CrudModel::search($request->search)
             ->orderBy($request->sortBy ?? 'updated_at', $request->sortOrder == 'ascending' ? 'asc' : 'desc')
             ->paginate($request->rows ?? 15)
             ->withQueryString();

@@ -8,7 +8,7 @@ use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 class {{ class }} implements CastsAttributes
 {
     /**
-     * Cast the given value.
+     * Cast the given value3
      *
      * @param  array<string, mixed>  $attributes
      */

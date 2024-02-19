@@ -17,6 +17,7 @@ class {{ class }} extends Controller
     ) {
         $this->name = Str::plural(Str::snake('{{ model }}')); //小駝峰 複數
         $this->page = 'Backend/'.Str::pluralStudly('{{ model }}'); //大駝峰 複數
+        $this->prefix = 'backend'; //路由前綴
 
         $this->rules = [
             'name' => ['required']
@@ -35,12 +36,7 @@ class {{ class }} extends Controller
     {
         $this->authorize('read '.$this->name);
 
-        $data = CrudModel::where(function ($query) use ($request)
-            {
-                $query
-                    ->orWhere('id', 'LIKE', "%{$request->search}%")
-                    ->orWhere('updated_at', 'LIKE', "%{$request->search}%");
-            })
+        $data = CrudModel::search($request->search)
             ->orderBy($request->sortBy ?? 'updated_at', $request->sortOrder == 'ascending' ? 'asc' : 'desc')
             ->paginate($request->rows ?? 15)
             ->withQueryString();
@@ -83,7 +79,7 @@ class {{ class }} extends Controller
 
             DB::commit();
 
-            return redirect()->route("backend.{$this->name}.index")->with([
+            return redirect()->route("{$this->prefix}.{$this->name}.index")->with([
                 'success' => __('messages.create').__('messages.success')
             ]);
         } catch (Exception $e) {
@@ -148,7 +144,7 @@ class {{ class }} extends Controller
 
             DB::commit();
 
-            return redirect()->route("backend.{$this->name}.index")->with([
+            return redirect()->route("{$this->prefix}.{$this->name}.index")->with([
                 'success' => __('messages.edit').__('messages.success')
             ]);
         } catch (Exception $e) {
@@ -177,7 +173,7 @@ class {{ class }} extends Controller
 
             DB::commit();
 
-            return redirect()->route("backend.{$this->name}.index")->with([
+            return redirect()->route("{$this->prefix}.{$this->name}.index")->with([
                 'success' => __('messages.delete').__('messages.success')
             ]);
         } catch (Exception $e) {

@@ -100,12 +100,7 @@ class {{ class }} extends Controller
     {
         $this->authorize('read '.$this->name);
 
-        $model = CrudModel::findOrFail($id);
-
-        return Inertia::render($this->page.'/Show')->with([
-            'model' => $model,
-            'show' => true
-        ]);
+        return $this->getData($id, true);
     }
 
     /**
@@ -117,12 +112,22 @@ class {{ class }} extends Controller
     {
         $this->authorize('edit '.$this->name);
 
+        return $this->getData($id);
+    }
+
+    /**
+     * 抓取該筆資料
+     * @param int $id
+     * @return Renderable
+     */
+    public function getData($id, $show = false){
         $model = CrudModel::findOrFail($id);
 
         return Inertia::render($this->page.'/Show')->with([
             'model' => $model
         ]);
     }
+
 
     /**
      * 更新該筆資料

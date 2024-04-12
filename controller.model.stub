@@ -124,7 +124,8 @@ class {{ class }} extends Controller
         $model = CrudModel::findOrFail($id);
 
         return Inertia::render($this->page.'/Show')->with([
-            'model' => $model
+            'model' => $model,
+            'show' => $show
         ]);
     }
 

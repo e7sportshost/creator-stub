@@ -7,6 +7,7 @@ use Inertia\Inertia;
 
 use {{ namespacedModel }} as crudModel;
 use Illuminate\Support\Str;
+use Illuminate\Support\Arr;
 use DataTables;
 use Exception;
 use DB;
@@ -27,7 +28,7 @@ class {{ class }} extends Controller
         $this->messages = [
 
         ];
-        $this->attributes = is_array(__("messages.{$this->name}")) ?  \Arr::dot(__("messages.{$this->name}")) : [];
+        $this->attributes = is_array(__("messages.{$this->name}")) ?  Arr::dot(__("messages.{$this->name}")) : [];
     }
 
     /**

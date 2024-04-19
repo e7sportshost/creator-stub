@@ -13,6 +13,8 @@ use DB;
 
 class {{ class }} extends Controller
 {
+    public $name, $page, $prefix, $rules, $messages, $attributes;
+
     public function __construct(
     ) {
         $this->name = Str::plural(Str::snake('{{ model }}')); //小駝峰 複數

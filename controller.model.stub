@@ -10,7 +10,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Arr;
 use DataTables;
 use Exception;
-use DB;
+use Illuminate\Support\Facades\DB;
 
 class {{ class }} extends Controller
 {

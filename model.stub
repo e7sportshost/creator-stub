@@ -9,8 +9,6 @@ class {{ class }} extends Model
 {
     use HasFactory;
 
-    // 搜尋器
-    use \Laravel\Scout\Searchable;
     //公司別
     use \App\Traits\HasCompanyTrait;
     //異動紀錄

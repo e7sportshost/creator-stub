@@ -13,6 +13,8 @@ class {{ class }} extends Model
     use \App\Traits\HasCompanyTrait;
     //異動紀錄
     use \App\Traits\ObserverTrait;
+    //公用方法
+    use \App\Traits\ModelShareTrait;
 
     protected $fillable = [
         'name'

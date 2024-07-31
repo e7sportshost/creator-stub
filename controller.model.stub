@@ -37,14 +37,16 @@ class {{ class }} extends Controller
     public function index(Request $request)
     {
         $this->authorize('read '.$this->name);
+        $search_data = ['name'];
 
-        $data = CrudModel::search($request->search)
+        $data = CrudModel::search($request->search, $search_data)
             ->orderBy($request->sortBy ?? 'updated_at', $request->sortOrder == 'ascending' ? 'asc' : 'desc')
             ->paginate($request->rows ?? 15)
             ->withQueryString();
 
         return Inertia::render($this->page.'/Index')->with([
-            'data' => $data
+            'data' => $data,
+            'search_data' => $search_data,
         ]);
     }
 

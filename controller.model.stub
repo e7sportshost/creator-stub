@@ -28,6 +28,7 @@ class {{ class }} extends Controller
 
         ];
         $this->attributes = is_array(__("messages.{$this->name}")) ?  Arr::dot(__("messages.{$this->name}")) : [];
+        $this->permission = $this->name;
     }
 
     /**
@@ -36,7 +37,7 @@ class {{ class }} extends Controller
      */
     public function index(Request $request)
     {
-        $this->authorize('read '.$this->name);
+        $this->authorize('read ' . $this->permission);
         $search_data = ['name'];
 
         $data = CrudModel::search($request->search, $search_data)
@@ -56,7 +57,7 @@ class {{ class }} extends Controller
      */
     public function create()
     {
-        $this->authorize('create '.$this->name);
+        $this->authorize('create ' . $this->permission);
 
         $model = CrudModel::prototype();
 
@@ -72,7 +73,7 @@ class {{ class }} extends Controller
      */
     public function store(Request $request)
     {
-        $this->authorize('create '.$this->name);
+        $this->authorize('create ' . $this->permission);
 
         $validatedData = $request->validate($this->rules, $this->messages, $this->attributes);
 
@@ -102,7 +103,7 @@ class {{ class }} extends Controller
      */
     public function show($id)
     {
-        $this->authorize('read '.$this->name);
+        $this->authorize('read ' . $this->permission);
 
         return $this->getData($id, true);
     }
@@ -114,7 +115,7 @@ class {{ class }} extends Controller
      */
     public function edit($id)
     {
-        $this->authorize('edit '.$this->name);
+        $this->authorize('edit ' . $this->permission);
 
         return $this->getData($id);
     }
@@ -142,7 +143,7 @@ class {{ class }} extends Controller
      */
     public function update(Request $request, $id)
     {
-        $this->authorize('edit '.$this->name);
+        $this->authorize('edit ' . $this->permission);
 
         $validatedData = $request->validate($this->rules, $this->messages, $this->attributes);
 
@@ -173,7 +174,7 @@ class {{ class }} extends Controller
      */
     public function destroy($id)
     {
-        $this->authorize('delete '.$this->name);
+        $this->authorize('delete ' . $this->permission);
 
         try{
             DB::beginTransaction();

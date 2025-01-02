@@ -84,8 +84,8 @@ class {{ class }} extends Controller
 
             DB::commit();
 
-            return redirect()->route("{$this->prefix}.{$this->name}.index")->with([
-                'success' => __('messages.create').__('messages.success')
+            return redirect()->route("{$this->prefix}.{$this->name}.index", $request->filters)->with([
+                'success' => __('messages.create') . __('messages.success')
             ]);
         } catch (Exception $e) {
             report($e);
@@ -156,8 +156,8 @@ class {{ class }} extends Controller
 
             DB::commit();
 
-            return redirect()->route("{$this->prefix}.{$this->name}.index")->with([
-                'success' => __('messages.edit').__('messages.success')
+            return redirect()->route("{$this->prefix}.{$this->name}.index", $request->filters)->with([
+                'success' => __('messages.edit') . __('messages.success')
             ]);
         } catch (Exception $e) {
             report($e);

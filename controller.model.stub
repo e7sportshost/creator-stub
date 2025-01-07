@@ -3,6 +3,7 @@
 namespace {{ namespace }};
 
 use {{ namespacedRequests }}
+use Closure;
 use Inertia\Inertia;
 
 use {{ namespacedModel }} as crudModel;
@@ -10,6 +11,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Arr;
 use Exception;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Arr;
 
 class {{ class }} extends Controller
 {
@@ -27,7 +29,10 @@ class {{ class }} extends Controller
         $this->messages = [
 
         ];
-        $this->attributes = is_array(__("messages.{$this->name}")) ?  Arr::dot(__("messages.{$this->name}")) : [];
+        $this->middleware(function (Request $request, Closure $next) {
+            $this->attributes = is_array(__("messages.{$this->name}")) ? Arr::dot(__("messages.{$this->name}")) : [];
+            return $next($request);
+        });
         $this->permission = $this->name;
     }
 

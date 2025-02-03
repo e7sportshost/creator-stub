@@ -5,7 +5,7 @@ namespace {{ namespace }};
 use {{ namespacedRequests }}
 use Inertia\Inertia;
 
-use {{ namespacedModel }} as crudModel;
+use {{ namespacedModel }} as CrudModel;
 use Illuminate\Support\Str;
 use Illuminate\Support\Arr;
 use Exception;

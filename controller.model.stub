@@ -3,6 +3,7 @@
 namespace {{ namespace }};
 
 use {{ namespacedRequests }}
+use Closure;
 use Inertia\Inertia;
 
 use {{ namespacedModel }} as crudModel;
@@ -13,22 +14,27 @@ use Illuminate\Support\Facades\DB;
 
 class {{ class }} extends Controller
 {
-    public $name, $page, $prefix, $rules, $messages, $attributes;
+    public $name, $page, $prefix, $rules, $messages, $attributes, $permission;
 
     public function __construct(
     ) {
-        $this->name = Str::plural(Str::snake('{{ model }}')); //小駝峰 複數
-        $this->page = 'Backend/'.Str::pluralStudly('{{ model }}'); //大駝峰 複數
-        $this->prefix = 'backend'; //路由前綴
+        $this->middleware(function (Request $request, Closure $next) {
+            $this->name = Str::plural(Str::snake('{{ model }}')); //小駝峰 複數
+            $this->page = 'Backend/'.Str::pluralStudly('{{ model }}'); //大駝峰 複數
+            $this->prefix = 'backend'; //路由前綴
 
-        $this->rules = [
-            'name' => ['required']
-        ];
-        $this->messages = [
+            $this->rules = [
+                'name' => ['required']
+            ];
+            $this->messages = [
 
-        ];
-        $this->attributes = is_array(__("messages.{$this->name}")) ?  Arr::dot(__("messages.{$this->name}")) : [];
-        $this->permission = $this->name;
+            ];
+
+            $this->attributes = is_array(__("messages.{$this->name}")) ? Arr::dot(__("messages.{$this->name}")) : [];
+            $this->permission = $this->name;
+
+            return $next($request);
+        });
     }
 
     /**
@@ -41,7 +47,7 @@ class {{ class }} extends Controller
         $search_data = ['name'];
 
         $data = CrudModel::search($request->search, $search_data)
-            ->orderBy($request->sortBy ?? 'updated_at', $request->sortOrder == 'ascending' ? 'asc' : 'desc')
+            ->orderByData($request->sortBy ?? 'updated_at', $request->sortOrder == 'ascending' ? 'asc' : 'desc')
             ->paginate($request->rows ?? 15)
             ->withQueryString();
 
@@ -84,10 +90,11 @@ class {{ class }} extends Controller
 
             DB::commit();
 
-            return redirect()->route("{$this->prefix}.{$this->name}.index")->with([
-                'success' => __('messages.create').__('messages.success')
+            return redirect()->route("{$this->prefix}.{$this->name}.index", $request->filters)->with([
+                'success' => __('messages.create') . __('messages.success')
             ]);
         } catch (Exception $e) {
+            report($e);
             DB::rollBack();
 
             return back()->with([
@@ -155,10 +162,11 @@ class {{ class }} extends Controller
 
             DB::commit();
 
-            return redirect()->route("{$this->prefix}.{$this->name}.index")->with([
-                'success' => __('messages.edit').__('messages.success')
+            return redirect()->route("{$this->prefix}.{$this->name}.index", $request->filters)->with([
+                'success' => __('messages.edit') . __('messages.success')
             ]);
         } catch (Exception $e) {
+            report($e);
             DB::rollBack();
 
             return back()->with([
@@ -188,6 +196,7 @@ class {{ class }} extends Controller
                 'success' => __('messages.delete').__('messages.success')
             ]);
         } catch (Exception $e) {
+            report($e);
             DB::rollBack();
 
             return back()->with([
